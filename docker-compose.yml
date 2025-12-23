@@ -1,0 +1,14 @@
+
+services:
+  1c-buddy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: 1c-buddy:latest
+    container_name: 1c-buddy
+    env_file:
+      - .env
+    ports:
+      - "6002:6002"
+    restart: unless-stopped
+    

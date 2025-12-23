@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <title>Чат с 1С:Напарник</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/chat/static/buddy_small.png">
+    <link href="/chat/static/styles.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- Sidebar with conversations list -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <button id="toggle-sidebar-btn" class="toggle-sidebar-btn" title="Свернуть/развернуть">◀</button>
+          <h2>Беседы</h2>
+          <button id="new-conversation-btn" class="new-conversation-btn" title="Создать новую беседу">➕</button>
+        </div>
+        <div class="conversations-list" id="conversations-list">
+          <!-- Conversations will be rendered here -->
+        </div>
+        <div class="sidebar-footer">
+          <button id="clear-all-conversations-btn" class="clear-all-btn" title="Удалить все беседы">
+            🗑️ Удалить все беседы
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main chat area -->
+      <div class="main-area">
+        <header class="topbar">
+          <div class="brand">
+            <button id="mobile-toggle-sidebar" class="mobile-toggle-btn" title="Показать беседы">☰</button>
+            <button id="desktop-toggle-sidebar" class="desktop-toggle-btn" title="Показать беседы">▶</button>
+            <img src="/chat/static/buddy_small.png" alt="logo" class="logo" />
+            <h1>Чат с 1С:Напарник</h1>
+          </div>
+          <div class="controls">
+            <button id="search-btn" title="Поиск по истории">🔍</button>
+            <button id="export-btn" title="Экспорт истории">📥</button>
+            <button id="clear-chat-btn" title="Очистить диалог">🗑️ Очистить</button>
+          </div>
+        </header>
+
+        <div class="search-container" id="search-container">
+          <input type="text" id="search-input" placeholder="Поиск по сообщениям..." />
+          <span class="search-results" id="search-results"></span>
+          <button id="close-search-btn" title="Закрыть поиск">✕</button>
+        </div>
+
+        <main>
+          <section id="chat" class="chat"></section>
+
+          <form id="send-form" class="composer">
+            <div id="attached-files" class="attached-files"></div>
+            <div class="input-wrapper">
+              <input type="file" id="file-input" accept=".bsl,.xml,.txt" multiple style="display: none;" />
+              <button id="attach-btn" type="button" title="Прикрепить файлы (.bsl, .xml, .txt)" class="attach-btn-left">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                </svg>
+              </button>
+              <textarea id="message-input" rows="1" placeholder="Введите сообщение..."></textarea>
+              <button id="send-stop-btn" type="submit" title="Отправить" class="send-btn-circle">
+                <svg class="send-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 19V5M5 12l7-7 7 7"/>
+                </svg>
+                <svg class="stop-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                  <rect x="6" y="6" width="12" height="12" rx="2"/>
+                </svg>
+              </button>
+            </div>
+          </form>
+
+          <!-- Format menu for code blocks -->
+          <div id="format-menu" class="format-menu hidden">
+            <button data-format="1c" class="format-btn" title="Оформить как код 1С (Ctrl+Shift+1)">
+              <span class="format-icon">📝</span>
+              Код 1С
+            </button>
+            <button data-format="xml" class="format-btn" title="Оформить как XML (Ctrl+Shift+X)">
+              <span class="format-icon">🏷️</span>
+              XML
+            </button>
+          </div>
+        </main>
+
+        <footer class="statusbar">
+          <span id="status">Готово</span>
+          <div class="statusbar-right">
+            <span id="tokens-label">Токены: <span id="total-tokens"><span class="token-arrow">↑</span> 0 <span class="token-arrow">↓</span> 0 <span class="token-total">(0)</span></span></span>
+            <span id="session-label">Сессия: <code id="session-id">—</code></span>
+          </div>
+        </footer>
+      </div>
+
+      <!-- File Viewer Panel (right sidebar) -->
+      <aside class="file-viewer-panel" id="file-viewer-panel">
+        <div class="file-viewer-header">
+          <div class="file-viewer-title">
+            <span class="file-viewer-icon">👁</span>
+            <h3 id="file-viewer-filename">Просмотр файла</h3>
+          </div>
+          <button id="close-file-viewer-btn" class="close-file-viewer-btn" title="Закрыть">✕</button>
+        </div>
+        <div class="file-viewer-toolbar">
+          <button id="copy-file-content-btn" class="file-viewer-btn" title="Копировать содержимое">
+            📋 Копировать
+          </button>
+          <button id="download-file-btn" class="file-viewer-btn" title="Скачать файл">
+            ⬇ Скачать
+          </button>
+          <button id="collapse-all-btn" class="file-viewer-btn" title="Свернуть все блоки" style="display: none;">
+            ⊟ Свернуть всё
+          </button>
+          <button id="expand-all-btn" class="file-viewer-btn" title="Развернуть все блоки" style="display: none;">
+            ⊞ Развернуть всё
+          </button>
+          <button id="search-file-btn" class="file-viewer-btn" title="Поиск по файлу">
+            🔍 Поиск
+          </button>
+          <span class="file-viewer-size" id="file-viewer-size"></span>
+        </div>
+        <div class="file-search-container" id="file-search-container">
+          <input type="text" id="file-search-input" placeholder="Поиск в файле..." autocomplete="off" />
+          <span class="file-search-results" id="file-search-results"></span>
+          <span class="file-search-spinner" id="file-search-spinner">⏳</span>
+          <button id="file-search-prev-btn" class="file-search-nav-btn" title="Предыдущий (Shift+Enter)">⬆</button>
+          <button id="file-search-next-btn" class="file-search-nav-btn" title="Следующий (Enter)">⬇</button>
+          <button id="close-file-search-btn" class="file-search-close-btn" title="Закрыть">✕</button>
+        </div>
+        <div class="file-viewer-content" id="file-viewer-content">
+          <div class="file-viewer-placeholder">
+            <span class="placeholder-icon">📄</span>
+            <p>Выберите файл для просмотра</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <script src="/chat/static/conversations.js"></script>
+    <script src="/chat/static/markdown.js"></script>
+    <script src="/chat/static/bsl.js"></script>
+    <script src="/chat/static/xml.js"></script>
+    <script src="/chat/static/code-folding.js"></script>
+    <script src="/chat/static/mermaid.min.js"></script>
+    <script src="/chat/static/dom-to-image-more.min.js"></script>
+    <script src="/chat/static/app.js"></script>
+  </body>
+</html>
