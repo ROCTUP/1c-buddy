@@ -101,10 +101,9 @@ class ToolCallItem(BaseModel):
 
 class ToolResultItem(BaseModel):
     """Элемент tool result POST body."""
-    content: str  # JSON-строка самого tool call
-    details: Dict[str, Any] = Field(default_factory=lambda: {"auto_call": True})
-    name: str
+    status: str = "accepted"
     tool_call_id: str
+    content: Optional[Any] = None
 
 
 class ToolResultRequest(BaseModel):

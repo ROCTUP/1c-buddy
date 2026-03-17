@@ -455,19 +455,11 @@ class OneCApiClient:
         """Build upstream role=tool payload that confirms server-side tool execution."""
         items = []
         for tc in tool_calls:
-            function_data = tc.get("function", {})
             tool_call_id = tc.get("id", "")
             item = ToolResultItem(
-                content=json.dumps(
-                    {
-                        "id": tool_call_id,
-                        "type": tc.get("type", "function"),
-                        "function": function_data,
-                    },
-                    ensure_ascii=False,
-                ),
-                name=function_data.get("name", ""),
+                status="accepted",
                 tool_call_id=tool_call_id,
+                content=None,
             )
             items.append(item)
 
