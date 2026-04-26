@@ -49,6 +49,12 @@
    
    docker run -d --name 1c-buddy --restart unless-stopped -p 6002:6002 -e "ONEC_AI_TOKEN=<your_1c_ai_token>" roctup/1c-buddy 
    ```
+
+   Если нужно зафиксировать версию БСП по умолчанию для MCP-запросов:
+
+   ```bash
+   docker run -d --name 1c-buddy --restart unless-stopped -p 6002:6002 -e "ONEC_AI_TOKEN=<your_1c_ai_token>" -e "DEFAULT_BSP_VERSION=3.2.1" roctup/1c-buddy
+   ```
    
    Если нужен также OpenAI API шлюз:
    
@@ -109,4 +115,3 @@
 ## Благодарности
 
 Огромное спасибо автору оригинального проекта MCP сервера для 1С:Напарник: **[artesk/1copilot_MCP](https://github.com/artesk/1copilot_MCP)** 
-

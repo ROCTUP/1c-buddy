@@ -30,6 +30,11 @@ class Settings(BaseSettings):
     ONEC_AI_UI_LANGUAGE: str = Field("russian", alias="ONEC_AI_UI_LANGUAGE")
     ONEC_AI_PROGRAMMING_LANGUAGE: str = Field("", alias="ONEC_AI_PROGRAMMING_LANGUAGE")
     ONEC_AI_SCRIPT_LANGUAGE: str = Field("", alias="ONEC_AI_SCRIPT_LANGUAGE")
+    DEFAULT_BSP_VERSION: str = Field(
+        "",
+        alias="DEFAULT_BSP_VERSION",
+        description="Default 1C:Subsystems Library (BSP) version to include in MCP prompts",
+    )
 
     # Session management
     MAX_ACTIVE_SESSIONS: int = Field(300, alias="MAX_ACTIVE_SESSIONS")

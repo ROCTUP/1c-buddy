@@ -123,6 +123,18 @@ class McpHandlers:
     def _use_direct_mode(self) -> bool:
         return (self.client.settings.MCP_TOOL_CALL_MODE or "standard").strip().lower() == "direct"
 
+    def _with_default_bsp_context(self, text: str) -> str:
+        default_bsp_version = (self.client.settings.DEFAULT_BSP_VERSION or "").strip()
+        if not default_bsp_version:
+            return text
+        context = (
+            "Контекст пользователя:\n"
+            f"- По умолчанию используй Библиотеку стандартных подсистем (БСП) версии {default_bsp_version}.\n"
+            "- Если пользователь явно указал другую версию БСП, используй указанную им версию.\n"
+            "- При поиске и ссылках на ИТС предпочитай материалы, соответствующие этой версии БСП.\n\n"
+        )
+        return f"{context}{text}"
+
     @staticmethod
     def _build_check_review_prompt(code: str) -> str:
         return (
@@ -465,6 +477,7 @@ class McpHandlers:
             programming_language = (args.get("programming_language") or "").strip() or None
             if not question:
                 return ToolsCallResult(content=[ToolsCallTextContent(text="Ошибка: Вопрос не может быть пустым")])
+            question = self._with_default_bsp_context(question)
             prepared_question, _ = prepare_message_for_upstream(question, self.client.settings)
             conv_id = await self._create_isolated_conversation(
                 session_id, programming_language=programming_language
@@ -489,6 +502,7 @@ class McpHandlers:
             question = f"Объясни синтаксис и использование: {syntax_element}"
             if context:
                 question += f" в контексте: {context}"
+            question = self._with_default_bsp_context(question)
             prepared_question, _ = prepare_message_for_upstream(question, self.client.settings)
             conv_id = await self._create_isolated_conversation(session_id)
             if self._use_direct_mode():
@@ -588,18 +602,19 @@ class McpHandlers:
             query = (args.get("query") or "").strip()
             if not query:
                 return ToolsCallResult(content=[ToolsCallTextContent(text="Ошибка: query не может быть пустым")])
+            query_with_context = self._with_default_bsp_context(query)
             conv_id = await self._create_isolated_conversation(session_id)
             if self._use_direct_mode():
                 result = await self.client.call_exact_tool(
                     conv_id,
                     tool_name="mcp__knowledge-hub__Search_ITS",
-                    arguments={"query": query},
+                    arguments={"query": query_with_context},
                 )
                 clean = sanitize_text(self._extract_tool_text(result, include_tool_details=True))
             else:
                 result = await self.client.call_prompt(
                     conv_id,
-                    instruction=self._build_search_its_prompt(query),
+                    instruction=self._build_search_its_prompt(query_with_context),
                 )
                 clean = sanitize_text(self._extract_standard_text(result))
             return ToolsCallResult(content=[ToolsCallTextContent(text=f"{clean}\n\nСессия: {session_id or '-'}\nРазговор: {conv_id}")])
